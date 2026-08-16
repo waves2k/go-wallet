@@ -1,0 +1,23 @@
+DROP INDEX IF EXISTS idx_ledger_entries_wallet_type;
+DROP INDEX IF EXISTS idx_transactions_receiver_status;
+DROP INDEX IF EXISTS idx_transactions_sender_status;
+DROP INDEX IF EXISTS idx_ledger_entries_created_at;
+DROP INDEX IF EXISTS idx_ledger_entries_entry_type;
+DROP INDEX IF EXISTS idx_ledger_entries_transaction_id;
+DROP INDEX IF EXISTS idx_ledger_entries_wallet_id;
+DROP INDEX IF EXISTS idx_transactions_created_at;
+DROP INDEX IF EXISTS idx_transactions_status;
+DROP INDEX IF EXISTS idx_transactions_idempotency_key;
+DROP INDEX IF EXISTS idx_transactions_receiver_wallet_id;
+DROP INDEX IF EXISTS idx_transactions_sender_wallet_id;
+DROP INDEX IF EXISTS idx_wallets_deleted_at;
+DROP INDEX IF EXISTS idx_wallets_status;
+DROP INDEX IF EXISTS idx_wallets_currency;
+DROP INDEX IF EXISTS idx_wallets_user_id;
+DROP INDEX IF EXISTS idx_users_deleted_at;
+DROP INDEX IF EXISTS idx_users_email;
+
+DROP TABLE IF EXISTS ledger_entries CASCADE;
+DROP TABLE IF EXISTS transactions CASCADE;
+DROP TABLE IF EXISTS wallets CASCADE;
+DROP TABLE IF EXISTS users CASCADE;

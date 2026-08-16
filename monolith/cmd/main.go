@@ -14,7 +14,7 @@ func main() {
 	ctx := context.Background()
 
 	pool, err := database.ConnectWithRetry(ctx, config.GetConnectionString())
-	if err != nil {
+	if err != nil {  
 		log.Fatal(err)
 	}
 	defer pool.Close()
