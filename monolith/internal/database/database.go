@@ -3,10 +3,10 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/waves2k/go-wallet/monolith/internal/logger"
 )
 
 const (
@@ -42,7 +42,7 @@ func ConnectWithRetry(ctx context.Context, connectionString string) (*pgxpool.Po
 		cancel()
 
 		if err == nil {
-			log.Printf("Database connected successfully on attempt %d", attempt)
+			logger.Log.Info(fmt.Sprintf("Database connected successfully on attempt %d", attempt))
 			return pool, nil
 		}
 
@@ -52,7 +52,7 @@ func ConnectWithRetry(ctx context.Context, connectionString string) (*pgxpool.Po
 			return nil, fmt.Errorf("failed to ping database after %d attempts: %+v", attempt, err)
 		}
 
-		log.Printf("Database connection attempt %d/%d failed %w", attempt, dbMaxRetries, err)
+		logger.Log.Warn(fmt.Sprintf("Database connection attempt %d/%d failed %w", attempt, dbMaxRetries, err))
 		time.Sleep(backoffDuration(attempt))
 	}
 	return nil, fmt.Errorf("failed to connect to database after %d attempts", dbMaxRetries)

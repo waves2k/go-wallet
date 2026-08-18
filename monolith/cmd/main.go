@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/waves2k/go-wallet/monolith/internal/config"
 	"github.com/waves2k/go-wallet/monolith/internal/database"
+	"github.com/waves2k/go-wallet/monolith/internal/logger"
 	"github.com/waves2k/go-wallet/monolith/internal/user/handler"
 	"github.com/waves2k/go-wallet/monolith/internal/user/repository"
 	"github.com/waves2k/go-wallet/monolith/internal/user/service"
@@ -14,12 +15,13 @@ import (
 
 func main() {
 	config := config.LoadConfig()
+	logger.InitLogger()
 
 	ctx := context.Background()
 
 	pool, err := database.ConnectWithRetry(ctx, config.GetConnectionString())
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Error("Criticaly Error: Could not connect to database", err)
 	}
 	defer pool.Close()
 
