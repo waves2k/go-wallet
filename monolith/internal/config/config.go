@@ -14,9 +14,16 @@ const (
 	defaultDbHostValue     = "localhost"
 	defaultDbPortValue     = "5432"
 	defaultDbNameValue     = "postgres"
+
+	defaultServerPort = ":8080"
 )
 
 type Config struct {
+	DbOptions
+	ServerOptions
+}
+
+type DbOptions struct {
 	DbUser     string
 	DbPassword string
 	DbHost     string
@@ -24,8 +31,12 @@ type Config struct {
 	DbName     string
 }
 
+type ServerOptions struct {
+	ListenAddr string
+}
+
 // Returns parsed connection string from config.
-func (c *Config) GetConnectionString() string {
+func (c *DbOptions) GetConnectionString() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", c.DbUser, c.DbPassword, c.DbHost, c.DbPort, c.DbName)
 }
 
@@ -36,11 +47,16 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		DbUser:     getEnv("POSTGRES_USER", defaultDbUserValue),
-		DbPassword: getEnv("POSTGRES_PASSWORD", defaultDbPasswordValue),
-		DbHost:     getEnv("POSTGRES_HOST", defaultDbHostValue),
-		DbPort:     getEnv("POSTGRES_PORT", defaultDbPortValue),
-		DbName:     getEnv("POSTGRES_NAME", defaultDbNameValue),
+		DbOptions: DbOptions{
+			DbUser:     getEnv("POSTGRES_USER", defaultDbUserValue),
+			DbPassword: getEnv("POSTGRES_PASSWORD", defaultDbPasswordValue),
+			DbHost:     getEnv("POSTGRES_HOST", defaultDbHostValue),
+			DbPort:     getEnv("POSTGRES_PORT", defaultDbPortValue),
+			DbName:     getEnv("POSTGRES_DB", defaultDbNameValue),
+		},
+		ServerOptions: ServerOptions{
+			ListenAddr: getEnv("SERVER_PORT", defaultServerPort),
+		},
 	}
 
 }
