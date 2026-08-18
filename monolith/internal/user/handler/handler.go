@@ -28,11 +28,11 @@ func NewUserHandler(svc service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) InitRoutes(router fiber.Router) fiber.Router {
-	users := router.Group("/users", middleware.ErrorHandler())
+	users := router.Group("/users" /*recovery(),*/, middleware.RequestID(), middleware.ErrorHandler())
 
 	users.Post("/", h.Register)
-	users.Get("/:id", h.GetProfile)
-	users.Patch("/:id", h.UpdateProfile)
+	users.Get("/:id", middleware.AuthMiddleware(), h.GetProfile)
+	users.Patch("/:id", middleware.AuthMiddleware(), h.UpdateProfile)
 
 	return users
 }
@@ -61,11 +61,13 @@ func (h *UserHandler) GetProfile(c fiber.Ctx) error {
 
 	id := c.Params("id")
 	if id == "" {
+		logger.Log.Warn(ErrInvalidIdParam.Error(), op)
 		return appErr.ErrBadRequest
 	}
 
 	user, err := h.svc.GetProfile(c.Context(), id)
 	if err != nil {
+		logger.Log.Warn(err.Error(), op)
 		return appErr.ErrInternalFailure
 	}
 
@@ -77,18 +79,40 @@ func (h *UserHandler) UpdateProfile(c fiber.Ctx) error {
 
 	id := c.Params("id")
 	if id == "" {
+		logger.Log.Warn(ErrInvalidIdParam.Error(), op)
 		return appErr.ErrBadRequest
 	}
 
 	var req model.UpdateUserRequest
 	if err := c.Bind().JSON(&req); err != nil {
+		logger.Log.Warn(err.Error(), op)
 		return appErr.ErrBadRequest
 	}
 
 	user, err := h.svc.UpdateProfile(c.Context(), id, req)
 	if err != nil {
+		logger.Log.Warn(err.Error(), op)
 		return appErr.ErrInternalFailure
 	}
 
 	return writeJSON(c, fiber.StatusOK, user)
+}
+
+func (h *UserHandler) handleRegistration(c fiber.Ctx) error {
+	const op = "UserHandler.UpdateProfile"
+
+	var req model.LoginRequest
+
+	if err := c.Bind().JSON(&req); err != nil {
+		logger.Log.Warn(err.Error(), op)
+		return appErr.ErrBadRequest
+	}
+
+	resp, err := h.svc.Login(c.Context(), req)
+	if err != nil {
+		logger.Log.Warn(err.Error(), op)
+		return appErr.ErrInternalFailure
+	}
+
+	return writeJSON(c, fiber.StatusOK, resp)
 }

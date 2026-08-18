@@ -5,7 +5,7 @@ import "github.com/gofiber/fiber/v3"
 func writeJSON(c fiber.Ctx, code int, v any) error {
 	return c.Status(code).JSON(fiber.Map{
 		"success": true,
-		"result":  v,
+		"data":    v,
 	})
 }
 
