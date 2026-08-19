@@ -9,8 +9,11 @@ import (
 	"github.com/waves2k/go-wallet/monolith/internal/database"
 	"github.com/waves2k/go-wallet/monolith/internal/logger"
 	"github.com/waves2k/go-wallet/monolith/internal/user/handler"
-	"github.com/waves2k/go-wallet/monolith/internal/user/repository"
-	"github.com/waves2k/go-wallet/monolith/internal/user/service"
+	userRepo "github.com/waves2k/go-wallet/monolith/internal/user/repository"
+	walRepo "github.com/waves2k/go-wallet/monolith/internal/wallet/repository"
+
+	userSvc "github.com/waves2k/go-wallet/monolith/internal/user/service"
+	walSvc "github.com/waves2k/go-wallet/monolith/internal/wallet/service"
 )
 
 func main() {
@@ -25,9 +28,13 @@ func main() {
 	}
 	defer pool.Close()
 
-	userRepo := repository.NewPostgresqlUserRepository(pool)
-	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc)
+	walRepo := walRepo.NewPostgresqlUserRepository(pool)
+	userRepo := userRepo.NewPostgresqlUserRepository(pool, walRepo)
+
+	userSvc := userSvc.NewUserService(userRepo)
+	walSvc := walSvc.NewWalletService(walRepo)
+
+	userHandler := handler.NewUserHandler(userSvc, walSvc)
 
 	app := fiber.New()
 	userHandler.InitRoutes(app)
