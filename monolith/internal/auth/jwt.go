@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -29,7 +30,7 @@ func GenerateToken(userID, email string, duration time.Duration) (string, error)
 		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "go-wallet-monolith",
-			ID:        userID + "-" + time.Now().Format("200060102150405"),
+			ID:        userID + "-" + time.Now().Format("20060102150405"),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
@@ -40,9 +41,9 @@ func GenerateToken(userID, email string, duration time.Duration) (string, error)
 
 func ValidateToken(tokenString string) (*JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(t *jwt.Token) (any, error) {
-		// if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-		// 	return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-		// }
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
 		return getSecretKey(), nil
 	})
 

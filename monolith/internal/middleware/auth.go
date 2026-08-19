@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
@@ -21,14 +22,16 @@ func AuthMiddleware() fiber.Handler {
 			return appErr.ErrUnauthorized
 		}
 
-		tokenStr := strings.TrimPrefix(header, "Bearer")
+		tokenStr := strings.TrimPrefix(header, "Bearer ")
 
 		if tokenStr == header || tokenStr == "" {
 			return appErr.ErrUnauthorized
 		}
 
 		claims, err := auth.ValidateToken(tokenStr)
+
 		if err != nil {
+			fmt.Printf(err.Error())
 			return appErr.ErrUnauthorized
 		}
 
